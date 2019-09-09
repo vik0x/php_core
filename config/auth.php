@@ -42,9 +42,9 @@ return [
         ],
 
         'api' => [
-            'driver' => 'token',
+            'driver' => 'passport',
             'provider' => 'users',
-            'hash' => false,
+            // 'hash' => false,
         ],
     ],
 
@@ -68,7 +68,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\User::class,
+            'model' => App\Models\v1\User::class,
         ],
 
         // 'users' => [
@@ -99,5 +99,9 @@ return [
             'expire' => 60,
         ],
     ],
+    // amount of allowed tries to login
+    'attempts_amount' => 3,
 
+    // amount of minutes to wait after blocking the attempts rule
+    'lockout_minutes' => 1,
 ];

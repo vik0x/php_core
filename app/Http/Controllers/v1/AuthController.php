@@ -24,6 +24,15 @@ class AuthController extends Controller
     {
         if ($this->limiter()->tooManyAttempts($this->throttleKey($request), config('auth.attempts_amount'), config('auth.lockout_minutes')) ) {
             $this->fireLockoutEvent($request);
+            return true;
+        }
+        $this->incrementLoginAttempts($request);
+        return false;
+    }
+
+    public function login(LoginRequest $request)
+    {
+        if ($this->checkForAttempts($request)) {
             $seconds = $this->limiter()->availableIn( $this->throttleKey($request) );
             return response()->json([
                 'errors' => [
@@ -31,13 +40,6 @@ class AuthController extends Controller
                 ]
             ], 401);
         }
-        $this->incrementLoginAttempts($request);
-        return null;
-    }
-
-    public function login(LoginRequest $request)
-    {
-        $this->checkForAttempts($request);
         extract($request->only('username', 'password'));
         $passes = Auth::guard('web')->attempt(['username' => $username, 'password' => $password]);
 

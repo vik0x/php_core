@@ -27,6 +27,7 @@ class CreateUsersTable extends Migration
             $table->boolean('can_login')->default(1);
             $table->string('reset_password_token')->nullable();
             $table->softDeletes();
+            $table->datetime('token_expiration_date')->nullable();
             $table->timestamps();
         });
         $users = [

@@ -14,6 +14,23 @@ use Illuminate\Http\Request;
 */
 
 Route::post('login', 'v1\AuthController@login');
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+
+// Route::resources([
+//     'users' => 'UserController'
+// ]);
+
+// Route::group(['middleware' => ['auth:api']], function () {
+	Route::get('users', 'v1\UserController@list');
+    Route::post('users', 'v1\UserController@create');
+	Route::get('users/{user}', 'v1\UserController@show')->where(['user' => '^([1-9]|[1-9][0-9]*)$']);
+    Route::put('users/{user}', 'v1\UserController@update')->where(['user' => '^([1-9]|[1-9][0-9]*)$']);
+    Route::delete('users/{user}', 'v1\UserController@destroy')->where(['user' => '^([1-9]|[1-9][0-9]*)$']);
+    Route::patch('users/{user}/restore', 'v1\UserController@restore')->where(['user' => '^([1-9]|[1-9][0-9]*)$']);
+    
+	// Route::get('/create', 'PostController@create')->name('create');
+	// Route::post('/store', 'PostController@store')->name('store');
+// });
+
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//     return $request->user();
+// });

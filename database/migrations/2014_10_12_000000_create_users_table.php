@@ -26,6 +26,7 @@ class CreateUsersTable extends Migration
             $table->enum('status', array('active','suspended'))->default('active');
             $table->boolean('can_login')->default(1);
             $table->string('reset_password_token')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
         $users = [

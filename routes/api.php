@@ -14,10 +14,14 @@ use Illuminate\Http\Request;
 */
 
 Route::post('login', 'v1\AuthController@login');
-
 Route::post('users/forgot_password', 'v1\UserController@forgotPassword');
 Route::post('users/reset_password', 'v1\UserController@resetPassword');
 
-// Route::middleware('auth:api')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
+Route::group(['middleware' => ['auth:api']], function () {
+	Route::get('users', 'v1\UserController@index');
+	Route::get('users/{user}', 'v1\UserController@show')->where(['user' => '^([1-9]|[1-9][0-9]*)$']);
+	Route::post('users', 'v1\UserController@create');
+	Route::put('users/{user}', 'v1\UserController@create')->where(['user' => '^([1-9]|[1-9][0-9]*)$']);
+	Route::patch('users/{user}/restore', 'v1\UserController@restore')->where(['user' => '^([1-9]|[1-9][0-9]*)$']);
+	Route::delete('users/{user}', 'v1\UserController@destroy')->where(['user' => '^([1-9]|[1-9][0-9]*)$']);
+});

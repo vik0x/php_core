@@ -8,13 +8,14 @@ use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\ForgotPasswordRequest;
 use App\Http\Requests\v1\ResetPasswordRequest;
+use App\Http\Requests\v1\AlterUserRequest;
 use App\Mail\RecoverPassword;
 use App\Models\v1\User;
 use App\Traits\Mail as MailTrait;
 
 class UserController extends Controller
 {
-    use MailTrait;
+   use MailTrait;
     /**
      * Restore the forgotten password.
      *
@@ -64,5 +65,110 @@ class UserController extends Controller
         return response()->json([
             'message' => trans($message)
         ], $httpCode);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $data = [];
+        foreach(User::all() as $user){
+            $data[] = [
+                "type"  => "user",
+                "id"    => $user->id,
+                "links" => [
+                    "self"  => url('/users/'. $user->id)
+                ],
+                "attributes" => [
+                    $user
+                ]
+            ];
+        }
+
+        return response()->json([
+            'links' => [],
+            "data"  => $data
+        ], 200);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create(AlterUserRequest $request, User $user)
+    {
+
+        $user->fill($request->input())->save();
+
+        return response()->json([
+            'data' => [
+                [
+                    "type"      => "user",
+                    "id"        => $user->id,
+                    "attributes"=> [
+                        $user
+                    ],
+                    "links"     => [
+                        "self"  => url('/users/'. $user->id)
+                    ]
+                ]
+            ],
+            'status' => 'sucess',
+        ], 200);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show(User $user)
+    {
+        return response()->json([
+            'data' => [
+                "type"          => "user",
+                "id"            => $user->id,
+                "attributes"    => [ $user ],
+                "links"         => [
+                    "self"  => url('/users/'. $user->id)
+                ]
+            ]
+        ], 200);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(User $user)
+    {
+        $user->delete();
+        return response()->json([
+            // TODO: Make config file to decide if the user will be returned
+            'data' => [$user],
+            'status' => 'sucess',
+        ], 200);
+    }
+
+    /**
+     * Restore the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function restore($user)
+    {
+        User::onlyTrashed()->findOrFail($user)->restore();
+        return response()->json([
+            'data' => [],
+            'status' => 'sucess',
+        ], 200);
     }
 }

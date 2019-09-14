@@ -8,8 +8,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\ForgotPasswordRequest;
 use App\Http\Requests\v1\ResetPasswordRequest;
-use App\Http\Requests\v1\UserEditRequest;
-use App\Http\Requests\v1\UserCreateRequest;
+use App\Http\Requests\v1\AlterUserRequest;
 use App\Mail\RecoverPassword;
 use App\Models\v1\User;
 use App\Traits\Mail as MailTrait;
@@ -67,16 +66,17 @@ class UserController extends Controller
             'message' => trans($message)
         ], $httpCode);
     }
-  
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function list()
+    public function index()
     {
+        $data = [];
         foreach(User::all() as $user){
-            $collection[] = array(
+            $data[] = [
                 "type"  => "user",
                 "id"    => $user->id,
                 "links" => [
@@ -85,12 +85,12 @@ class UserController extends Controller
                 "attributes" => [
                     $user
                 ]
-            );
+            ];
         }
-        
+
         return response()->json([
             'links' => [],
-            "data"  => $collection
+            "data"  => $data
         ], 200);
     }
 
@@ -99,8 +99,9 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(UserCreateRequest $request, User $user)
+    public function create(AlterUserRequest $request, User $user)
     {
+
         $user->fill($request->input())->save();
 
         return response()->json([
@@ -130,45 +131,13 @@ class UserController extends Controller
     {
         return response()->json([
             'data' => [
-                [
-                    "type"      => "user",
-                    "id"        => $user->id,
-                    "attributes"=> [
-                        $user
-                    ],
-                    "links"     => [
-                        "self"  => url('/users/'. $user->id)
-                    ]
+                "type"          => "user",
+                "id"            => $user->id,
+                "attributes"    => [ $user ],
+                "links"         => [
+                    "self"  => url('/users/'. $user->id)
                 ]
             ]
-        ], 200);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UserEditRequest $request, User $user)
-    {
-        $user->fill($request->input())->update();
-
-        return response()->json([
-            'data' => [
-                [
-                    "type"      => "user",
-                    "id"        => $user->id,
-                    "attributes"=> [
-                        $user
-                    ],
-                    "links"     => [
-                        "self"  => url('/users/'. $user->id)
-                    ]
-                ]
-            ],
-            'status' => 'sucess',
         ], 200);
     }
 
@@ -182,7 +151,8 @@ class UserController extends Controller
     {
         $user->delete();
         return response()->json([
-            'data' => [],
+            // TODO: Make config file to decide if the user will be returned
+            'data' => [$user],
             'status' => 'sucess',
         ], 200);
     }

@@ -18,9 +18,16 @@ class CreatePermissionTables extends Migration
 
         Schema::create($tableNames['permissions'], function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedInteger('parent_id')->nullable();
             $table->string('name');
             $table->string('guard_name');
             $table->timestamps();
+
+            $table->foreign('parent_id')
+                ->references('id')
+                ->on($table->getTable())
+                ->onDelete('cascade');
+
         });
 
         Schema::create($tableNames['roles'], function (Blueprint $table) {

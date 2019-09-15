@@ -22,7 +22,7 @@ class AuthController extends Controller
      */
     protected function checkForAttempts(Request $request)
     {
-        if ($this->limiter()->tooManyAttempts($this->throttleKey($request), config('auth.attempts_amount'), config('auth.lockout_minutes')) ) {
+        if ($this->limiter()->tooManyAttempts($this->throttleKey($request), config('auth.attempts_amount'), config('auth.lockout_minutes'))) {
             $this->fireLockoutEvent($request);
             return true;
         }
@@ -33,7 +33,7 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         if ($this->checkForAttempts($request)) {
-            $seconds = $this->limiter()->availableIn( $this->throttleKey($request) );
+            $seconds = $this->limiter()->availableIn($this->throttleKey($request));
             return response()->json([
                 'errors' => [
                     'message' => trans('auth.throttle', ['seconds' => $seconds]),
@@ -56,7 +56,7 @@ class AuthController extends Controller
             $status = $user->status;
             $statusRejected = in_array($status, config('settings.user.status.cant_login'));
 
-            if ($canLogin === 0 || $statusRejected ) {
+            if ($canLogin === 0 || $statusRejected) {
                 $message = $statusRejected ? 'auth.account_status.' . $status : 'auth.cant_login';
                 return response()->json([
                     'errors' => [
@@ -82,14 +82,14 @@ class AuthController extends Controller
         ], 401);
     }
 
-	public function logout()
-	{
-		Auth::user()->token()->revoke();
+    public function logout()
+    {
+        Auth::user()->token()->revoke();
 
-		return response()->json([
-	 	    'response' => [
-	     	        'message' => trans('auth.account_logout'),
-	            ]
-	        ], 200);
-	}
+        return response()->json([
+            'response' => [
+                    'message' => trans('auth.account_logout'),
+                ]
+            ], 200);
+    }
 }

@@ -15,7 +15,7 @@ use App\Traits\Mail as MailTrait;
 
 class UserController extends Controller
 {
-   use MailTrait;
+    use MailTrait;
     /**
      * Restore the forgotten password.
      *
@@ -54,11 +54,12 @@ class UserController extends Controller
         $message = 'validation.reset_password_invalid_token';
         extract($request->only('token', 'password'));
         $token = Crypt::decryptString($token);
+        $password = bcrypt($password);
         $user = User::getUserByResetToken($token);
         if ($user !== null) {
             $message = 'success';
             $httpCode = 200;
-            $user->password = bcrypt($password);
+            $user->password = $password;
             $user->reset_password_token = null;
             $user->save();
         }
@@ -75,7 +76,7 @@ class UserController extends Controller
     public function index()
     {
         $data = [];
-        foreach(User::all() as $user){
+        foreach (User::all() as $user) {
             $data[] = [
                 "type"  => "user",
                 "id"    => $user->id,
@@ -107,12 +108,12 @@ class UserController extends Controller
         return response()->json([
             'data' => [
                 [
-                    "type"      => "user",
+                    "type"  => "user",
                     "id"        => $user->id,
                     "attributes"=> [
                         $user
                     ],
-                    "links"     => [
+                    "links"  => [
                         "self"  => url('/users/'. $user->id)
                     ]
                 ]
@@ -131,10 +132,10 @@ class UserController extends Controller
     {
         return response()->json([
             'data' => [
-                "type"          => "user",
+                "type"      => "user",
                 "id"            => $user->id,
                 "attributes"    => [ $user ],
-                "links"         => [
+                "links"   => [
                     "self"  => url('/users/'. $user->id)
                 ]
             ]

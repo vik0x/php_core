@@ -18,17 +18,17 @@ Route::post('users/forgot_password', 'v1\UserController@forgotPassword');
 Route::post('users/reset_password', 'v1\UserController@resetPassword');
 
 Route::group(['middleware' => ['auth:api']], function () {
-	// Users
-	Route::get('users', 'v1\UserController@index');
-	Route::get('users/{user}', 'v1\UserController@show');
-	Route::post('users', 'v1\UserController@create');
-	Route::put('users/{user}', 'v1\UserController@create');
-	Route::patch('users/{user}/restore', 'v1\UserController@restore');
-	Route::delete('users/{user}', 'v1\UserController@destroy');
+    // Users
+    Route::get('users', 'v1\UserController@index');
+    Route::get('users/{user}', 'v1\UserController@show');
+    Route::post('users', 'v1\UserController@create');
+    Route::put('users/{user}', 'v1\UserController@create');
+    Route::patch('users/{user}/restore', 'v1\UserController@restore');
+    Route::delete('users/{user}', 'v1\UserController@destroy');
 
-	// Roles
-	Route::get('roles', 'v1\RoleController@index');
-	Route::post('roles', 'v1\RoleController@create');
-	Route::put('roles/{role}', 'v1\RoleController@create');
-	Route::delete('roles/{role}', 'v1\RoleController@destroy');
+    // Roles
+    Route::get('roles', 'v1\RoleController@index');
+    Route::post('roles', 'v1\RoleController@create');
+    Route::put('roles/{role}', 'v1\RoleController@create');
+    Route::delete('roles/{role}', 'v1\RoleController@destroy');
 });

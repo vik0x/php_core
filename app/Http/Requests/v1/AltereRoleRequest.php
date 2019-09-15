@@ -26,7 +26,7 @@ class AltereRoleRequest extends FormRequest
     {
         $rules = [
             'user_password' => ['required', new CheckPassword($this->user()->password)],
-            'role' => ['required', 'string', 'min:3', 'unique:roles,name'], 
+            'role' => ['required', 'string', 'min:3', 'unique:roles,name'],
         ];
         if ($this->isMethod('put')) {
             $role = $this->route()->parameter('role');

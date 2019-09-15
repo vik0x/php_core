@@ -54,11 +54,12 @@ class UserController extends Controller
         $message = 'validation.reset_password_invalid_token';
         extract($request->only('token', 'password'));
         $token = Crypt::decryptString($token);
+        $password = bcrypt($password);
         $user = User::getUserByResetToken($token);
         if ($user !== null) {
             $message = 'success';
             $httpCode = 200;
-            $user->password = bcrypt($password);
+            $user->password = $password;
             $user->reset_password_token = null;
             $user->save();
         }

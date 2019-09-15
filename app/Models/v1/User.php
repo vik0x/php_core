@@ -40,7 +40,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    static public function findByUsername(String $username)
+    public static function findByUsername(String $username)
     {
         $user = User::where('username', $username)->first();
         if ($user === null) {
@@ -49,7 +49,7 @@ class User extends Authenticatable
         return $user;
     }
 
-    static public function getUserByResetToken(String $token)
+    public static function getUserByResetToken(String $token)
     {
         $response = null;
         $user = User::where('reset_password_token', $token)->first();

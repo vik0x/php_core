@@ -15,7 +15,7 @@ use App\Traits\Mail as MailTrait;
 
 class UserController extends Controller
 {
-   use MailTrait;
+    use MailTrait;
     /**
      * Restore the forgotten password.
      *
@@ -75,7 +75,7 @@ class UserController extends Controller
     public function index()
     {
         $data = [];
-        foreach(User::all() as $user){
+        foreach (User::all() as $user) {
             $data[] = [
                 "type"  => "user",
                 "id"    => $user->id,
@@ -107,12 +107,12 @@ class UserController extends Controller
         return response()->json([
             'data' => [
                 [
-                    "type"      => "user",
+                    "type"  => "user",
                     "id"        => $user->id,
                     "attributes"=> [
                         $user
                     ],
-                    "links"     => [
+                    "links"  => [
                         "self"  => url('/users/'. $user->id)
                     ]
                 ]
@@ -131,10 +131,10 @@ class UserController extends Controller
     {
         return response()->json([
             'data' => [
-                "type"          => "user",
+                "type"      => "user",
                 "id"            => $user->id,
                 "attributes"    => [ $user ],
-                "links"         => [
+                "links"   => [
                     "self"  => url('/users/'. $user->id)
                 ]
             ]

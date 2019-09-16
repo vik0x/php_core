@@ -3,6 +3,7 @@
 namespace App\Models\v1;
 
 use Laravel\Passport\HasApiTokens;
+use EloquentFilter\Filterable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -10,9 +11,11 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Spatie\Permission\Traits\HasRoles;
 
+use App\Traits\Mail as MailTrait;
+
 class User extends Authenticatable
 {
-    use Notifiable, HasApiTokens, SoftDeletes, HasRoles;
+    use Notifiable, HasApiTokens, SoftDeletes, HasRoles, Filterable, MailTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -62,5 +65,10 @@ class User extends Authenticatable
             }
         }
         return $response;
+    }
+
+    public function getMaskEmailAttribute()
+    {
+        return $this->maskEmail($this->email, 2);
     }
 }

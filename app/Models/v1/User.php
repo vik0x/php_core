@@ -8,10 +8,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use EloquentFilter\Filterable;
+use App\Traits\Mail as MailTrait;
 
 class User extends Authenticatable
 {
-    use Notifiable, HasApiTokens, SoftDeletes;
+    use Notifiable, HasApiTokens, SoftDeletes, Filterable, MailTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -61,5 +63,10 @@ class User extends Authenticatable
             }
         }
         return $response;
+    }
+
+    public function getMaskEmailAttribute()
+    {
+        return $this->maskEmail($this->email, 2);
     }
 }

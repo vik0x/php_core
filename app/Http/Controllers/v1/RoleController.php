@@ -28,6 +28,7 @@ class RoleController extends Controller
     {
         $role->name = $request->input('role');
         $role->save();
+        app('cache')->forget('spatie.permission.cache');
         $data = fractal()
             ->item($role, new RoleTransformer(), 'roles')
             ->serializeWith(new JsonApiSerializer())
@@ -45,6 +46,7 @@ class RoleController extends Controller
             ->item($role, new RoleTransformer(), 'roles')
             ->serializeWith(new JsonApiSerializer())
             ->toArray();
+        app('cache')->forget('spatie.permission.cache');
         return response()->json($data, 200);
     }
 }

@@ -23,6 +23,7 @@ class AddPrincipalPermissions extends Migration
         Permission::create(['name' => 'create roles', 'parent_id' => $permission->id]);
         Permission::create(['name' => 'update roles', 'parent_id' => $permission->id]);
         Permission::create(['name' => 'delete roles', 'parent_id' => $permission->id]);
+        app('cache')->forget('spatie.permission.cache');
     }
 
     /**
@@ -43,5 +44,6 @@ class AddPrincipalPermissions extends Migration
         Permission::findByName('update roles')->delete();
         Permission::findByName('delete roles')->delete();
         Permission::findByName('view roles')->delete();
+        app('cache')->forget('spatie.permission.cache');
     }
 }

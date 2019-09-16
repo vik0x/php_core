@@ -10,9 +10,9 @@ use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Serializer\JsonApiSerializer;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\v1\ForgotPasswordRequest
-use App\Http\Requests\v1\ResetPasswordRequest
-use App\Http\Requests\v1\AlterUserRequest
+use App\Http\Requests\v1\ForgotPasswordRequest;
+use App\Http\Requests\v1\ResetPasswordRequest;
+use App\Http\Requests\v1\AlterUserRequest;
 use App\Mail\RecoverPassword;
 use App\Models\v1\User;
 use App\Transformers\v1\ListUserTransformer;

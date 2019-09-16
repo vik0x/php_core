@@ -3,69 +3,48 @@
 namespace App\Http\Controllers\v1;
 
 use Illuminate\Http\Request;
+use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use League\Fractal\Serializer\JsonApiSerializer;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+
 use App\Http\Controllers\Controller;
-use App\Http\Requests\v1\AltereRoleRequest;
+use App\Http\Requests\v1\AlterRoleRequest;
+use App\Transformers\v1\RoleTransformer;
 
 class RoleController extends Controller
 {
 
     public function index()
     {
-        $data = [];
-        foreach (Role::all() as $role) {
-            $data[] = [
-                "type"  => "roles",
-                "id"    => $role->id,
-                "links" => [
-                    "self"  => url('/roles/'. $role->id)
-                ],
-                "attributes" => [
-                    $role
-                ]
-            ];
-        }
-
-        return response()->json([
-            'links' => [],
-            "data"  => $data
-        ], 200);
+        $data = fractal()
+           ->collection(Role::get(), new RoleTransformer(), 'roles')
+           ->serializeWith(new JsonApiSerializer())
+           ->toArray();
+        return response()->json($data, 200);
     }
 
-    public function create(AltereRoleRequest $request, Role $role)
+    public function create(AlterRoleRequest $request, Role $role)
     {
         $role->name = $request->input('role');
         $role->save();
-        $data = [
-            "type"  => "roles",
-            "id"    => $role->id,
-            "links" => [
-                "self"  => url('/roles/'. $role->id)
-            ],
-            "attributes" => [
-                $role
-            ]
-        ];
-        return $data;
+        $data = fractal()
+            ->item($role, new RoleTransformer(), 'roles')
+            ->serializeWith(new JsonApiSerializer())
+            ->toArray();
+        return response()->json($data, 200);
     }
 
     public function destroy(Request $request, Role $role)
     {
-        foreach (Permission::all() as $permission) {
+        foreach ($role->permissions as $permission) {
             $role->revokePermissionTo($permission->name);
         }
         $role->delete();
-        $data = [
-            "type"  => "roles",
-            "id"    => $role->id,
-            "links" => [
-                "self"  => url('/roles/'. $role->id)
-            ],
-            "attributes" => [
-                $role
-            ]
-        ];
-        return $data;
+        $data = fractal()
+            ->item($role, new RoleTransformer(), 'roles')
+            ->serializeWith(new JsonApiSerializer())
+            ->toArray();
+        return response()->json($data, 200);
     }
 }

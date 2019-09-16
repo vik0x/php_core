@@ -5,7 +5,7 @@ namespace App\Http\Requests\v1;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\v1\CheckPassword;
 
-class AltereRoleRequest extends FormRequest
+class AlterRoleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,7 +14,8 @@ class AltereRoleRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        $check = new CheckPassword($this->user()->password);
+        return $check->passes('password', $this->user_password);
     }
 
     /**
@@ -25,7 +26,6 @@ class AltereRoleRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'user_password' => ['required', new CheckPassword($this->user()->password)],
             'role' => ['required', 'string', 'min:3', 'unique:roles,name'],
         ];
         if ($this->isMethod('put')) {

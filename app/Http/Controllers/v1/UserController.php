@@ -15,7 +15,7 @@ use App\Http\Requests\v1\ResetPasswordRequest;
 use App\Http\Requests\v1\AlterUserRequest;
 use App\Mail\RecoverPassword;
 use App\Models\v1\User;
-use App\Transformers\v1\ListUserTransformer;
+use App\Transformers\v1\UserTransformer;
 
 class UserController extends Controller
 {
@@ -79,7 +79,7 @@ class UserController extends Controller
     {
         $user = User::filter($request->all())->paginateFilter();
         $data = fractal()
-            ->collection($user, new ListUserTransformer(), 'users')
+            ->collection($user, new UserTransformer(), 'users')
             ->paginateWith(new IlluminatePaginatorAdapter($user))
             ->serializeWith(new JsonApiSerializer())
             ->toArray();
@@ -95,7 +95,7 @@ class UserController extends Controller
     {
         $user->fill($request->input())->save();
         $data = fractal()
-            ->item($user, new ListUserTransformer(), 'users')
+            ->item($user, new UserTransformer(), 'users')
             ->serializeWith(new JsonApiSerializer())
             ->toArray();
         return response()->json($data, 200);
@@ -110,7 +110,7 @@ class UserController extends Controller
     public function show(User $user)
     {
         $data = fractal()
-            ->item($user, new ListUserTransformer(), 'users')
+            ->item($user, new UserTransformer(), 'users')
             ->serializeWith(new JsonApiSerializer())
             ->toArray();
         return response()->json($data, 200);
@@ -127,7 +127,7 @@ class UserController extends Controller
         $user->delete();
         // TODO: Make config file to decide if the user will be returned
         $data = fractal()
-            ->item($user, new ListUserTransformer(), 'users')
+            ->item($user, new UserTransformer(), 'users')
             ->serializeWith(new JsonApiSerializer())
             ->toArray();
         return response()->json($data, 200);
@@ -143,7 +143,7 @@ class UserController extends Controller
     {
         $user = User::onlyTrashed()->findOrFail($user);
         $data = fractal()
-            ->item($user, new ListUserTransformer(), 'users')
+            ->item($user, new UserTransformer(), 'users')
             ->serializeWith(new JsonApiSerializer())
             ->toArray();
         $user->restore();

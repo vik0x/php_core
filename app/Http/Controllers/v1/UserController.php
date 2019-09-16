@@ -2,20 +2,23 @@
 
 namespace App\Http\Controllers\v1;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
+use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use League\Fractal\Serializer\JsonApiSerializer;
+
 use App\Http\Controllers\Controller;
-use App\Http\Requests\v1\ForgotPasswordRequest;
-use App\Http\Requests\v1\ResetPasswordRequest;
-use App\Http\Requests\v1\AlterUserRequest;
+use App\Http\Requests\v1\ForgotPasswordRequest
+use App\Http\Requests\v1\ResetPasswordRequest
+use App\Http\Requests\v1\AlterUserRequest
 use App\Mail\RecoverPassword;
 use App\Models\v1\User;
-use App\Traits\Mail as MailTrait;
+use App\Transformers\v1\ListUserTransformer;
 
 class UserController extends Controller
 {
-    use MailTrait;
     /**
      * Restore the forgotten password.
      *
@@ -33,9 +36,8 @@ class UserController extends Controller
         $msgAttributes = ['username' => $username];
 
         if ($user !== null) {
-            $email = $this->maskEmail($user->email, 2);
             $message = 'mailing.email_to_recover_password_was_send';
-            $msgAttributes = ['email' => $email];
+            $msgAttributes = ['email' => $user->maskEmail];
             $user->reset_password_token = bin2hex(random_bytes(32));
             $user->token_expiration_date = Carbon::now()->add(config('settings.user.expiration_days'), 'day');
             $user->save();
@@ -73,26 +75,16 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $data = [];
-        foreach (User::all() as $user) {
-            $data[] = [
-                "type"  => "user",
-                "id"    => $user->id,
-                "links" => [
-                    "self"  => url('/users/'. $user->id)
-                ],
-                "attributes" => [
-                    $user
-                ]
-            ];
-        }
+        $user = User::filter($request->all())->paginateFilter();
+        $data = fractal()
+            ->collection($user, new ListUserTransformer(), 'users')
+            ->paginateWith(new IlluminatePaginatorAdapter($user))
+            ->serializeWith(new JsonApiSerializer())
+            ->toArray();
 
-        return response()->json([
-            'links' => [],
-            "data"  => $data
-        ], 200);
+        return response()->json($data, 200);
     }
 
     /**
@@ -102,24 +94,13 @@ class UserController extends Controller
      */
     public function create(AlterUserRequest $request, User $user)
     {
-
         $user->fill($request->input())->save();
+        $data = fractal()
+            ->item($user, new ListUserTransformer(), 'users')
+            ->serializeWith(new JsonApiSerializer())
+            ->toArray();
 
-        return response()->json([
-            'data' => [
-                [
-                    "type"  => "user",
-                    "id"        => $user->id,
-                    "attributes"=> [
-                        $user
-                    ],
-                    "links"  => [
-                        "self"  => url('/users/'. $user->id)
-                    ]
-                ]
-            ],
-            'status' => 'sucess',
-        ], 200);
+        return response()->json($data, 200);
     }
 
     /**
@@ -130,16 +111,11 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return response()->json([
-            'data' => [
-                "type"      => "user",
-                "id"            => $user->id,
-                "attributes"    => [ $user ],
-                "links"   => [
-                    "self"  => url('/users/'. $user->id)
-                ]
-            ]
-        ], 200);
+        $data = fractal()
+            ->item($user, new ListUserTransformer(), 'users')
+            ->serializeWith(new JsonApiSerializer())
+            ->toArray();
+        return response()->json($data, 200);
     }
 
     /**
@@ -151,11 +127,12 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
-        return response()->json([
-            // TODO: Make config file to decide if the user will be returned
-            'data' => [$user],
-            'status' => 'sucess',
-        ], 200);
+        // TODO: Make config file to decide if the user will be returned
+        $data = fractal()
+            ->item($user, new ListUserTransformer(), 'users')
+            ->serializeWith(new JsonApiSerializer())
+            ->toArray();
+        return response()->json($data, 200);
     }
 
     /**
@@ -166,10 +143,12 @@ class UserController extends Controller
      */
     public function restore($user)
     {
-        User::onlyTrashed()->findOrFail($user)->restore();
-        return response()->json([
-            'data' => [],
-            'status' => 'sucess',
-        ], 200);
+        $user = User::onlyTrashed()->findOrFail($user);
+        $data = fractal()
+            ->item($user, new ListUserTransformer(), 'users')
+            ->serializeWith(new JsonApiSerializer())
+            ->toArray();
+        $user->restore();
+        return response()->json($data, 200);
     }
 }

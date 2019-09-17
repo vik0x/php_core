@@ -9,11 +9,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use EloquentFilter\Filterable;
-use App\Traits\Mail as MailTrait;
+use App\Traits\MailTrait;
+use App\Traits\UploadTrait;
 
 class User extends Authenticatable
 {
-    use Notifiable, HasApiTokens, SoftDeletes, Filterable, MailTrait;
+    use Notifiable, HasApiTokens, SoftDeletes, Filterable, MailTrait, UploadTrait;
 
     /**
      * The attributes that are mass assignable.

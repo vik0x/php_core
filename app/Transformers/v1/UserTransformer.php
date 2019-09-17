@@ -5,7 +5,7 @@ namespace App\Transformers\v1;
 use League\Fractal\TransformerAbstract;
 use App\Models\v1\User;
 
-class ListUserTransformer extends TransformerAbstract
+class UserTransformer extends TransformerAbstract
 {
     /**
      * A Fractal transformer.
@@ -22,7 +22,7 @@ class ListUserTransformer extends TransformerAbstract
             'first_name'    => $user->first_name,
             'middle_name'   => $user->middle_name,
             'last_name'     => $user->last_name,
-            'type'          => $user->type,
+            'role_id'       => $user->role_id,
             'status'        => $user->status,
             'can_login'     => $user->can_login
         ];

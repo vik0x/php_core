@@ -86,6 +86,13 @@ class CreatePermissionTables extends Migration
             $table->primary(['permission_id', 'role_id'], 'role_has_permissions_permission_id_role_id_primary');
         });
 
+        Schema::table('users', function (Blueprint $table) use ($tableNames) {
+           $table->foreign('role_id')
+                ->references('id')
+                ->on($tableNames['roles'])
+                ->onDelete('cascade');
+        });
+
         app('cache')
             ->store(config('permission.cache.store') != 'default' ? config('permission.cache.store') : null)
             ->forget(config('permission.cache.key'));
@@ -100,6 +107,9 @@ class CreatePermissionTables extends Migration
     {
         $tableNames = config('permission.table_names');
 
+        Schema::table('users', function (Blueprint $table) {
+           $table->dropForeign(['role_id']);
+        });
         Schema::drop($tableNames['role_has_permissions']);
         Schema::drop($tableNames['model_has_roles']);
         Schema::drop($tableNames['model_has_permissions']);

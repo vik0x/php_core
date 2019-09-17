@@ -15,6 +15,7 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedInteger('role_id')->nullable();
             $table->string('username')->unique();
             $table->string('password');
             $table->string('email', 300)->unique();
@@ -22,7 +23,6 @@ class CreateUsersTable extends Migration
             $table->string('first_name');
             $table->string('middle_name')->nullable();
             $table->string('last_name');
-            $table->enum('type', array('root','admin','user'))->default('admin');
             $table->enum('status', array('active','suspended'))->default('active');
             $table->boolean('can_login')->default(1);
             $table->string('reset_password_token')->nullable();
@@ -37,7 +37,6 @@ class CreateUsersTable extends Migration
                 'email' => 'vgutierrez@vetta.io',
                 'first_name' => 'Vetta',
                 'last_name' => 'Root',
-                'type' => 'root',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ],
@@ -47,7 +46,6 @@ class CreateUsersTable extends Migration
                 'email' => 'admin@vetta.io',
                 'first_name' => 'admin',
                 'last_name' => 'admin',
-                'type' => 'admin',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ],
@@ -57,7 +55,6 @@ class CreateUsersTable extends Migration
                 'email' => 'admin2@vetta.io',
                 'first_name' => 'admin2',
                 'last_name' => 'admin2',
-                'type' => 'admin',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ]

@@ -28,10 +28,13 @@ Route::group(['middleware' => ['auth:api']], function () {
 
     // Roles
     Route::get('roles', 'v1\RoleController@index');
-    Route::post('roles', 'v1\RoleController@create');
-    Route::put('roles/{role}', 'v1\RoleController@create');
-    Route::put('roles/{role}/permissions', 'v1\RoleController@assignPermissionsToRole');
-    Route::delete('roles/{role}', 'v1\RoleController@destroy');
+    // Super endpoints
+    Route::group(['middleware' => 'role:' . config('settings.user.rootRole')], function () {
+        Route::post('roles', 'v1\RoleController@create');
+        Route::put('roles/{role}', 'v1\RoleController@create');
+        Route::put('roles/{role}/permissions', 'v1\RoleController@assignPermissionsToRole');
+        Route::delete('roles/{role}', 'v1\RoleController@destroy');
+    });
 
     //Permissions
     Route::get('permissions', 'v1\RoleController@permissions');

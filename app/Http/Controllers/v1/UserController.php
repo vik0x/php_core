@@ -93,7 +93,15 @@ class UserController extends Controller
      */
     public function create(AlterUserRequest $request, User $user)
     {
-        $user->fill($request->input())->save();
+        $user->fill($request->input());
+        if ($request->isMethod('post')) {
+            $user->password = bcrypt($request->input('password_confirmation'));
+        }
+        if ($request->isMethod('put')) {
+            $user->role_id = $user->getOriginal('role_id');
+            $user->password = $user->getOriginal('password');
+        }
+        $user->save();
         $data = fractal()
             ->item($user, new UserTransformer(), 'users')
             ->serializeWith(new JsonApiSerializer())

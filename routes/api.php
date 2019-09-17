@@ -30,5 +30,9 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::get('roles', 'v1\RoleController@index');
     Route::post('roles', 'v1\RoleController@create');
     Route::put('roles/{role}', 'v1\RoleController@create');
+    Route::put('roles/{role}/permissions', 'v1\RoleController@assignPermissionsToRole');
     Route::delete('roles/{role}', 'v1\RoleController@destroy');
+
+    //Permissions
+    Route::get('permissions', 'v1\RoleController@permissions');
 });

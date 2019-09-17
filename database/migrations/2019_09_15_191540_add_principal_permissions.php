@@ -13,16 +13,16 @@ class AddPrincipalPermissions extends Migration
     public function up()
     {
         // Users
-        $permission = Permission::create(['name' => 'view users']);
-        Permission::create(['name' => 'create users', 'parent_id' => $permission->id]);
-        Permission::create(['name' => 'update users', 'parent_id' => $permission->id]);
-        Permission::create(['name' => 'delete users', 'parent_id' => $permission->id]);
+        $permission = Permission::create(['name' => 'view users', 'guard_name' => 'api']);
+        Permission::create(['name' => 'create users', 'guard_name' => 'api', 'parent_id' => $permission->id]);
+        Permission::create(['name' => 'update users', 'guard_name' => 'api', 'parent_id' => $permission->id]);
+        Permission::create(['name' => 'delete users', 'guard_name' => 'api', 'parent_id' => $permission->id]);
 
         // Roles
-        $permission = Permission::create(['name' => 'view roles']);
-        Permission::create(['name' => 'create roles', 'parent_id' => $permission->id]);
-        Permission::create(['name' => 'update roles', 'parent_id' => $permission->id]);
-        Permission::create(['name' => 'delete roles', 'parent_id' => $permission->id]);
+        $permission = Permission::create(['name' => 'view roles', 'guard_name' => 'api']);
+        Permission::create(['name' => 'create roles', 'guard_name' => 'api', 'parent_id' => $permission->id]);
+        Permission::create(['name' => 'update roles', 'guard_name' => 'api', 'parent_id' => $permission->id]);
+        Permission::create(['name' => 'delete roles', 'guard_name' => 'api', 'parent_id' => $permission->id]);
         app('cache')->forget('spatie.permission.cache');
     }
 

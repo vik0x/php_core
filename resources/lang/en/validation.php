@@ -146,5 +146,5 @@ return [
     */
 
     'attributes' => [],
-
+    'invalid_permission' => "You can't assign some permissions",
 ];

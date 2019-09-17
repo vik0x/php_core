@@ -18,6 +18,7 @@ class RoleTransformer extends TransformerAbstract
             'id'            => $role->id,
             'name'          => $role->name,
             'guard_name'    => $role->guard_name,
+            'permissions'   => $role->permissions
         ];
     }
 }

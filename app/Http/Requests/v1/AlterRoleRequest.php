@@ -14,8 +14,9 @@ class AlterRoleRequest extends FormRequest
      */
     public function authorize()
     {
+        $role = $this->route()->parameter('role');
         $check = new CheckPassword($this->user()->password);
-        return $check->passes('password', $this->user_password);
+        return $check->passes('password', $this->user_password) && $role->name !== config('settings.user.rootRole');
     }
 
     /**

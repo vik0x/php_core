@@ -4,6 +4,7 @@ namespace App\Http\Requests\v1;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\v1\CheckPermissions;
+use App\Rules\v1\CheckPassword;
 
 class AssignPermissionsToRoleRequest extends FormRequest
 {
@@ -14,7 +15,8 @@ class AssignPermissionsToRoleRequest extends FormRequest
      */
     public function authorize()
     {
-        return $this->user()->hasRole(config('settings.user.rootRole'));
+        $check = new CheckPassword($this->user()->password);
+        return $check->passes('password', $this->user_password);
     }
 
     /**

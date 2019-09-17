@@ -52,7 +52,7 @@ class CheckPermissions implements Rule
     private function canAddPermission(Permission $permission)
     {
         $user = $this->user;
-        if ($this->user()->hasRole(config('settings.user.rootRole'))) {
+        if ($user->hasRole(config('settings.user.rootRole'))) {
             return true;
         }
         $parentPermission = $permission->parentPermission;

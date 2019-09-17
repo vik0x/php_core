@@ -66,6 +66,9 @@ class RoleController extends Controller
 
     public function assignPermissionsToRole(AssignPermissionsToRoleRequest $request, Role $role)
     {
+        foreach ($role->permissions as $permission) {
+            $role->revokePermissionTo($permission->name);
+        }
         foreach ($request->input('permissions') as $permissionId) {
             $role->givePermissionTo(Permission::find($permissionId));
         }

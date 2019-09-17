@@ -15,6 +15,7 @@ use App\Http\Requests\v1\ForgotPasswordRequest;
 use App\Http\Requests\v1\ResetPasswordRequest;
 use App\Http\Requests\v1\AlterUserRequest;
 use App\Http\Requests\v1\ProfilePictureRequest;
+use App\Http\Requests\v1\AssignPermissionsToUserRequest;
 use App\Mail\RecoverPassword;
 use App\Models\v1\Permission;
 use App\Models\v1\User;
@@ -193,5 +194,25 @@ class UserController extends Controller
         }
 
         return response()->json($resp);
+    }
+
+    public function assignPermissionsToUser(AssignPermissionsToUserRequest $request, User $user)
+    {
+        $permissions = $request->input('permissions');
+        $list = [];
+        foreach ($permissions as $permissionId) {
+            $permission = Permission::find($permissionId);
+            if (!in_array($permission->parent_id, $permissions) && !in_array($permission->parent_id, array_keys($list))) {
+                $list[$permission->parent_id] = Permission::find($permission->parent_id);
+            }
+            $list[$permissionId] = $permission;
+        }
+        $user->syncPermissions($list);
+        app('cache')->forget('spatie.permission.cache');
+        $data = fractal()
+            ->item($user, new UserTransformer(), 'users')
+            ->serializeWith(new JsonApiSerializer())
+            ->toArray();
+        return response()->json($data, 200);
     }
 }

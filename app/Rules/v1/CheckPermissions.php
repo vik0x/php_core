@@ -46,7 +46,7 @@ class CheckPermissions implements Rule
      */
     public function message()
     {
-        return trans('validation.invalid_permission');
+        return trans('validation.custom.invalid_permission');
     }
 
     private function canAddPermission(Permission $permission)

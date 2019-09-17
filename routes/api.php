@@ -22,6 +22,8 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::get('users', 'v1\UserController@index');
     Route::get('users/{user}', 'v1\UserController@show');
     Route::post('users', 'v1\UserController@create');
+    Route::post('users/{user}/profile_picture', 'v1\UserController@uploadPicture');
+
     Route::put('users/{user}', 'v1\UserController@create');
     Route::patch('users/{user}/restore', 'v1\UserController@restore');
     Route::delete('users/{user}', 'v1\UserController@destroy');

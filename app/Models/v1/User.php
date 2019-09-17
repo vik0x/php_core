@@ -11,11 +11,12 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Spatie\Permission\Traits\HasRoles;
 
-use App\Traits\Mail as MailTrait;
+use App\Traits\MailTrait;
+use App\Traits\UploadTrait;
 
 class User extends Authenticatable
 {
-    use Notifiable, HasApiTokens, SoftDeletes, HasRoles, Filterable, MailTrait;
+    use Notifiable, HasApiTokens, SoftDeletes, HasRoles, Filterable, MailTrait, UploadTrait;
 
     /**
      * The attributes that are mass assignable.

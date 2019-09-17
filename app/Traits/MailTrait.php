@@ -1,7 +1,7 @@
 <?php
 namespace App\Traits;
 
-trait Mail
+trait MailTrait
 {
     public function maskEmail(String $email, Int $show)
     {

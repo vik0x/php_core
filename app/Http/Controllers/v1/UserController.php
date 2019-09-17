@@ -14,10 +14,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\ForgotPasswordRequest;
 use App\Http\Requests\v1\ResetPasswordRequest;
 use App\Http\Requests\v1\AlterUserRequest;
+use App\Http\Requests\v1\ProfilePictureRequest;
 use App\Mail\RecoverPassword;
 use App\Models\v1\Permission;
 use App\Models\v1\User;
 use App\Transformers\v1\UserTransformer;
+
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -55,7 +58,7 @@ class UserController extends Controller
     public function resetPassword(ResetPasswordRequest $request)
     {
         $httpCode = 404;
-        $message = 'validation.reset_password_invalid_token';
+        $message = 'validation.custom.reset_password_invalid_token';
         extract($request->only('token', 'password'));
         $token = Crypt::decryptString($token);
         $password = bcrypt($password);
@@ -164,5 +167,31 @@ class UserController extends Controller
             ->toArray();
         $user->restore();
         return response()->json($data, 200);
+    }
+
+    public function uploadPicture(ProfilePictureRequest $request, User $user)
+    {
+        //Get message to display
+        $resp = [
+            'message' => trans('validation.custom.invalid_file')
+        ];
+
+        if ($request->has('profile_image')) {
+            // Get image file
+            $image = $request->file('profile_image');
+            // Define folder path
+            $folder = config('settings.user.profile_picture.path');
+            // Make a file path where image will be stored [ folder path + file name + file extension]
+            $filePath = $folder . '/' . $user->id . '.' . $image->getClientOriginalExtension();
+            // Upload image
+            $user->uploadOne($image, $folder, env('UPLOAD_ENV', 'public'), $user->id);
+            //Get message to display
+            $resp = [
+                'message' => trans('validation.custom.valid_file'),
+                'link' => asset(Storage::url($filePath))
+            ];
+        }
+
+        return response()->json($resp);
     }
 }

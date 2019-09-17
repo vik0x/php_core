@@ -129,6 +129,9 @@ return [
     */
 
     'custom' => [
+        'reset_password_invalid_token' => 'The given token is invalid or has expired.',
+        'invalid_file' => 'The file uplaoded is invalid',
+        'valid_file' => 'The file was uploaded',
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],

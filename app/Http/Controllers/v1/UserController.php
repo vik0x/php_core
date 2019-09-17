@@ -8,12 +8,14 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Serializer\JsonApiSerializer;
+use Spatie\Permission\Models\Role;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\ForgotPasswordRequest;
 use App\Http\Requests\v1\ResetPasswordRequest;
 use App\Http\Requests\v1\AlterUserRequest;
 use App\Mail\RecoverPassword;
+use App\Models\v1\Permission;
 use App\Models\v1\User;
 use App\Transformers\v1\UserTransformer;
 
@@ -95,6 +97,7 @@ class UserController extends Controller
     {
         $user->fill($request->input());
         if ($request->isMethod('post')) {
+            $role = Role::find($user->role_id);
             $user->password = bcrypt($request->input('password_confirmation'));
         }
         if ($request->isMethod('put')) {
@@ -102,6 +105,11 @@ class UserController extends Controller
             $user->password = $user->getOriginal('password');
         }
         $user->save();
+        if (isset($role)) {
+            $user->assignRole($role);
+            $user->givePermissionTo($role->permissions);
+            app('cache')->forget('spatie.permission.cache');
+        }
         $data = fractal()
             ->item($user, new UserTransformer(), 'users')
             ->serializeWith(new JsonApiSerializer())

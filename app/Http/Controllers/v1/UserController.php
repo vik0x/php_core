@@ -8,15 +8,18 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Serializer\JsonApiSerializer;
+use Spatie\Permission\Models\Role;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\ForgotPasswordRequest;
 use App\Http\Requests\v1\ResetPasswordRequest;
 use App\Http\Requests\v1\AlterUserRequest;
 use App\Http\Requests\v1\ProfilePictureRequest;
+use App\Http\Requests\v1\AssignPermissionsToUserRequest;
 use App\Mail\RecoverPassword;
+use App\Models\v1\Permission;
 use App\Models\v1\User;
-use App\Transformers\v1\ListUserTransformer;
+use App\Transformers\v1\UserTransformer;
 
 use Illuminate\Support\Facades\Storage;
 
@@ -82,11 +85,10 @@ class UserController extends Controller
     {
         $user = User::filter($request->all())->paginateFilter();
         $data = fractal()
-            ->collection($user, new ListUserTransformer(), 'users')
+            ->collection($user, new UserTransformer(), 'users')
             ->paginateWith(new IlluminatePaginatorAdapter($user))
             ->serializeWith(new JsonApiSerializer())
             ->toArray();
-
         return response()->json($data, 200);
     }
 
@@ -97,12 +99,25 @@ class UserController extends Controller
      */
     public function create(AlterUserRequest $request, User $user)
     {
-        $user->fill($request->input())->save();
+        $user->fill($request->input());
+        if ($request->isMethod('post')) {
+            $role = Role::find($user->role_id);
+            $user->password = bcrypt($request->input('password_confirmation'));
+        }
+        if ($request->isMethod('put')) {
+            $user->role_id = $user->getOriginal('role_id');
+            $user->password = $user->getOriginal('password');
+        }
+        $user->save();
+        if (isset($role)) {
+            $user->assignRole($role);
+            $user->givePermissionTo($role->permissions);
+            app('cache')->forget('spatie.permission.cache');
+        }
         $data = fractal()
-            ->item($user, new ListUserTransformer(), 'users')
+            ->item($user, new UserTransformer(), 'users')
             ->serializeWith(new JsonApiSerializer())
             ->toArray();
-
         return response()->json($data, 200);
     }
 
@@ -115,7 +130,7 @@ class UserController extends Controller
     public function show(User $user)
     {
         $data = fractal()
-            ->item($user, new ListUserTransformer(), 'users')
+            ->item($user, new UserTransformer(), 'users')
             ->serializeWith(new JsonApiSerializer())
             ->toArray();
         return response()->json($data, 200);
@@ -132,7 +147,7 @@ class UserController extends Controller
         $user->delete();
         // TODO: Make config file to decide if the user will be returned
         $data = fractal()
-            ->item($user, new ListUserTransformer(), 'users')
+            ->item($user, new UserTransformer(), 'users')
             ->serializeWith(new JsonApiSerializer())
             ->toArray();
         return response()->json($data, 200);
@@ -148,7 +163,7 @@ class UserController extends Controller
     {
         $user = User::onlyTrashed()->findOrFail($user);
         $data = fractal()
-            ->item($user, new ListUserTransformer(), 'users')
+            ->item($user, new UserTransformer(), 'users')
             ->serializeWith(new JsonApiSerializer())
             ->toArray();
         $user->restore();
@@ -179,5 +194,25 @@ class UserController extends Controller
         }
 
         return response()->json($resp);
+    }
+
+    public function assignPermissionsToUser(AssignPermissionsToUserRequest $request, User $user)
+    {
+        $permissions = $request->input('permissions');
+        $list = [];
+        foreach ($permissions as $permissionId) {
+            $permission = Permission::find($permissionId);
+            if (!in_array($permission->parent_id, $permissions) && !in_array($permission->parent_id, array_keys($list))) {
+                $list[$permission->parent_id] = Permission::find($permission->parent_id);
+            }
+            $list[$permissionId] = $permission;
+        }
+        $user->syncPermissions($list);
+        app('cache')->forget('spatie.permission.cache');
+        $data = fractal()
+            ->item($user, new UserTransformer(), 'users')
+            ->serializeWith(new JsonApiSerializer())
+            ->toArray();
+        return response()->json($data, 200);
     }
 }

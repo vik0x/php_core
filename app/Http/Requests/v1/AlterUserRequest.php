@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\v1;
 
+use Spatie\Permission\Models\Role;
+
 class AlterUserRequest extends FormRequest
 {
     /**
@@ -11,6 +13,10 @@ class AlterUserRequest extends FormRequest
      */
     public function authorize()
     {
+        $superAdmin = Role::findByName(config('settings.user.rootRole'));
+        if (!$this->user()->hasRole($superAdmin) && $this->has('role_id')) {
+            return $superAdmin->id !== (int)$this->input('role_id');
+        }
         return true;
     }
 
@@ -22,13 +28,13 @@ class AlterUserRequest extends FormRequest
     public function rules()
     {
         $validation = [
+            'role_id'       => ['required', 'exists:roles,id'],
             'username'      => ['required', 'alpha_dash', 'unique:users,username'],
             'email'         => ['required', 'email:rfc,dns', 'unique:users,email'],
             'first_name'    => ['required', 'string'],
             'middle_name'   => ['string'],
             'last_name'     => ['required', 'string'],
             'password'      => ['required', 'confirmed'],
-            'type'          => ['alpha'],
             'status'        => ['alpha'],
             'can_login'     => ['boolean'],
             'mobile_number' => ['string', 'min:10'],
@@ -41,7 +47,6 @@ class AlterUserRequest extends FormRequest
                 'first_name'    => ['string'],
                 'middle_name'   => ['string'],
                 'last_name'     => ['string'],
-                'type'          => ['alpha'],
                 'status'        => ['alpha'],
                 'can_login'     => ['boolean']
             ];

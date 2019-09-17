@@ -3,18 +3,20 @@
 namespace App\Models\v1;
 
 use Laravel\Passport\HasApiTokens;
+use EloquentFilter\Filterable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
-use EloquentFilter\Filterable;
+use Spatie\Permission\Traits\HasRoles;
+
 use App\Traits\MailTrait;
 use App\Traits\UploadTrait;
 
 class User extends Authenticatable
 {
-    use Notifiable, HasApiTokens, SoftDeletes, Filterable, MailTrait, UploadTrait;
+    use Notifiable, HasApiTokens, SoftDeletes, HasRoles, Filterable, MailTrait, UploadTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -22,7 +24,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'username', 'password', 'email', 'mobile_number', 'first_name', 'middle_name', 'last_name', 'type', 'status', 'can_login'
+        'role_id', 'username', 'password', 'email', 'mobile_number', 'first_name', 'middle_name', 'last_name', 'status', 'can_login'
     ];
 
     /**

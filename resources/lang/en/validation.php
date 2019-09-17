@@ -135,6 +135,7 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
+        'invalid_permission' => "You can't assign some permissions",
     ],
 
     /*
@@ -149,5 +150,4 @@ return [
     */
 
     'attributes' => [],
-
 ];

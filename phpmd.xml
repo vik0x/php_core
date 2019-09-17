@@ -35,9 +35,9 @@
     </rule>
 
     <!-- Clean Code -->
-    <!-- <rule ref="rulesets/cleancode.xml">
+    <rule ref="rulesets/cleancode.xml">
         <exclude name="StaticAccess"/>
-    </rule> -->
+    </rule>
 
     <!-- Naming -->
     <rule ref="rulesets/naming.xml">

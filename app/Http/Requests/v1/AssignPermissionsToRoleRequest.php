@@ -14,7 +14,7 @@ class AssignPermissionsToRoleRequest extends FormRequest
      */
     public function authorize()
     {
-        return in_array($this->user()->type, config('settings.user.roots'));
+        return $this->user()->hasRole(config('settings.user.rootRole'));
     }
 
     /**

@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
+use Spatie\Permission\Models\Role;
+use App\Models\v1\User;
 class CreatePermissionTables extends Migration
 {
     /**
@@ -87,11 +89,18 @@ class CreatePermissionTables extends Migration
         });
 
         Schema::table('users', function (Blueprint $table) use ($tableNames) {
+            $table->unsignedInteger('role_id')->after('id')->nullable();
            $table->foreign('role_id')
                 ->references('id')
                 ->on($tableNames['roles'])
                 ->onDelete('cascade');
         });
+        $role = Role::create(['name' => config('settings.user.rootRole')]);
+        foreach (User::all() as $user) {
+            $user->assignRole($role);
+            $user->role_id = $role->id;
+            $user->save();
+        }
 
         app('cache')
             ->store(config('permission.cache.store') != 'default' ? config('permission.cache.store') : null)

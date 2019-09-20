@@ -17,10 +17,10 @@ class AlterRoleRequest extends FormRequest
         //The body parameter in the request for role creation/edition must not be equal than the model for implicit binding issues when trying to edit (PUT)
         $role = $this->route()->parameter('role');
         $check = new CheckPassword($this->user()->password);
-        if ($role) {
-            return $check->passes('password', $this->user_password) && $this->role->name !== config('settings.user.rootRole');
+        if ($this->isMethod('post')) {
+            return $check->passes('password', $this->user_password);
         }
-        return $check->passes('password', $this->user_password) && $this->role_name !== config('settings.user.rootRole');
+        return $check->passes('password', $this->user_password) && $role->name !== config('settings.user.rootRole');
     }
 
     /**

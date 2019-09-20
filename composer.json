@@ -14,8 +14,9 @@
         "laravel/framework": "^6.0",
         "laravel/passport": "^7.4",
         "laravel/tinker": "^1.0",
-        "spatie/laravel-permission": "^3.0",
+        "spatie/laravel-cors": "^1.6",
         "spatie/laravel-fractal": "^5.6",
+        "spatie/laravel-permission": "^3.0",
         "tucker-eric/eloquentfilter": "^2.0"
     },
     "require-dev": {

@@ -29,7 +29,7 @@ class RoleController extends Controller
 
     public function create(AlterRoleRequest $request, Role $role)
     {
-        $role->name = $request->input('role');
+        $role->name = $request->input('role_name');
         $role->save();
         app('cache')->forget('spatie.permission.cache');
         $data = fractal()

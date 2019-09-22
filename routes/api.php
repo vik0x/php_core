@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 Route::post('login', 'v1\AuthController@login');
 Route::post('users/forgot_password', 'v1\UserController@forgotPassword');
 Route::post('users/reset_password', 'v1\UserController@resetPassword');
+Route::post('users/{user}/fetch', 'v1\UserController@fetchUser');
 
 Route::group(['middleware' => ['auth:api']], function () {
     // Users

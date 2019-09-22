@@ -215,9 +215,10 @@ class UserController extends Controller
             ->toArray();
         return response()->json($data, 200);
     }
-    
-    public function fetchUser(User $user)
+
+    public function fetchUser(Request $request)
     {
+        $user = $request->user();
         $data = fractal()
             ->item($user, new UserTransformer(), 'users')
             ->includePermissions()

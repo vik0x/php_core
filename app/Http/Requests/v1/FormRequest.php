@@ -22,7 +22,10 @@ abstract class FormRequest extends LaravelFormRequest
      *
      * @return bool
      */
-    abstract public function authorize();
+    public function authorize()
+    {
+        return true;
+    }
 
     /**
      * Handle a failed validation attempt.

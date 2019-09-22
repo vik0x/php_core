@@ -16,13 +16,13 @@ use Illuminate\Http\Request;
 Route::post('login', 'v1\AuthController@login');
 Route::post('users/forgot_password', 'v1\UserController@forgotPassword');
 Route::post('users/reset_password', 'v1\UserController@resetPassword');
-Route::post('users/{user}/fetch', 'v1\UserController@fetchUser');
 
 Route::group(['middleware' => ['auth:api']], function () {
     // Users
     Route::get('users', 'v1\UserController@index');
     Route::get('users/{user}', 'v1\UserController@show');
     Route::post('users', 'v1\UserController@create');
+    Route::post('users/fetch', 'v1\UserController@fetchUser');
     Route::post('users/{user}/profile_picture', 'v1\UserController@uploadPicture');
     Route::put('users/{user}/permissions', 'v1\UserController@assignPermissionsToUser');
 

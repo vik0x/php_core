@@ -4,6 +4,7 @@ namespace App\Transformers\v1;
 
 use League\Fractal\TransformerAbstract;
 use App\Models\v1\User;
+use PermissionTransformer;
 
 class UserTransformer extends TransformerAbstract
 {
@@ -27,5 +28,11 @@ class UserTransformer extends TransformerAbstract
             'status'        => $user->status,
             'can_login'     => $user->can_login
         ];
+    }
+    
+    public function includePermissions(User $user)
+    {
+        $permissions = $user->permissions;
+        return $permissions ? $this->item($permissions) : $this->null();
     }
 }

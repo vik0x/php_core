@@ -17,6 +17,8 @@ class AuthController extends Controller
 {
     protected $cookie;
 
+    const REFRESH_TOKEN = 'refreshToken';
+
     use AuthenticatesUsers;
     /**
      * Determine if the user has too many failed login attempts.
@@ -81,7 +83,7 @@ class AuthController extends Controller
         ], 401);
     }
 
-    public function oauthTtoken($grantType, $user, $clientId, $secret, $password)
+    public function oauthToken($grantType, $user, $clientId, $secret, $password)
     {
 
         $app = app();
@@ -92,7 +94,7 @@ class AuthController extends Controller
             'password'=>$password,
         ], [
             'client_id'=>$clientId,
-            'client_secret'=>$$secret,
+            'client_secret'=>$secret,
             'grant_type'=>$grantType
         ]);
 
@@ -112,6 +114,17 @@ class AuthController extends Controller
 
         $result = json_decode((string) $response->getBody());
 
+         // Create a refresh token cookie
+         $this->cookie->queue(
+             self::REFRESH_TOKEN,
+             $result->refresh_token,
+             864000, // 10 days
+             null,
+             null,
+             false,
+             true// HttpOnly
+         );
+
         return response()->json([
             'response' => [
                 'access_token' => $result->access_token,
@@ -124,6 +137,7 @@ class AuthController extends Controller
     public function logout()
     {
         Auth::user()->token()->revoke();
+        $this->cookie->queue($this->cookie->forget(self::REFRESH_TOKEN));
 
         return response()->json([
             'response' => [

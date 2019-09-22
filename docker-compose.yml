@@ -1,0 +1,63 @@
+version: '3.1'
+
+services:
+
+  psql:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: homestead
+    ports:
+      - 5432:5432
+    networks:
+      - backend-net
+
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+  api_php_core:
+    build:
+      context: ./
+      dockerfile: api.dockerfile
+    container_name: api_php_core
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: api
+      SERVICE_TAGS: dev
+    working_dir: /var/www
+    volumes:
+       - ./:/var/www
+    networks:
+      - backend-net
+    depends_on:
+      - psql
+ 
+  webserver_php_core:
+    image: nginx:alpine
+    container_name: webserver_php_core
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "7000:8080"      
+    volumes:
+      - ./:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - backend-net
+    depends_on:
+      - psql
+
+#Docker Networks
+networks:
+  backend-net:
+    driver: bridge
+
+#Volumes
+volumes:
+  dbdata:

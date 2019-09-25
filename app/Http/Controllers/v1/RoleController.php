@@ -20,7 +20,13 @@ class RoleController extends Controller
 
     public function index()
     {
+        /* HINT: For getting the users roles and the permissions for those roles you shoud use
+        *
+        *    ->includeRoles()
+        *    ->parseIncludes(['roles.permissions'])
+        */
         $data = fractal()
+            ->includePermissions()
            ->collection(Role::get(), new RoleTransformer(), 'roles')
            ->serializeWith(new JsonApiSerializer())
            ->toArray();
@@ -33,6 +39,7 @@ class RoleController extends Controller
         $role->save();
         app('cache')->forget('spatie.permission.cache');
         $data = fractal()
+            ->includePermissions()
             ->item($role, new RoleTransformer(), 'roles')
             ->serializeWith(new JsonApiSerializer())
             ->toArray();
@@ -74,6 +81,7 @@ class RoleController extends Controller
         }
         app('cache')->forget('spatie.permission.cache');
         $data = fractal()
+            ->includePermissions()
             ->item($role, new RoleTransformer(), 'roles')
             ->serializeWith(new JsonApiSerializer())
             ->toArray();

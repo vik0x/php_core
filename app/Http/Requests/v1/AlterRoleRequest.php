@@ -14,7 +14,7 @@ class AlterRoleRequest extends FormRequest
      */
     public function authorize()
     {
-        $role = $this->route()->parameter('role');
+        $role = $this->route()->parameter('role_name');
         $check = new CheckPassword($this->user()->password);
         if ($this->isMethod('post')) {
             return $check->passes('password', $this->user_password);
@@ -30,11 +30,11 @@ class AlterRoleRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'role' => ['required', 'string', 'min:3', 'unique:roles,name'],
+            'role_name' => ['required', 'string', 'min:3', 'unique:roles,name'],
         ];
         if ($this->isMethod('put')) {
             $role = $this->route()->parameter('role');
-            $rules['role'] = ['required', 'string', 'min:3', 'unique:roles,name,' . $role->id];
+            $rules['role_name'] = ['required', 'string', 'min:3', 'unique:roles,name,' . $role->id];
         }
         return $rules;
     }

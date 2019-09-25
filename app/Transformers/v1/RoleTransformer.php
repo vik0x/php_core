@@ -8,6 +8,14 @@ use Spatie\Permission\Models\Role;
 class RoleTransformer extends TransformerAbstract
 {
     /**
+     * List of resources possible to include
+     *
+     * @var array
+    */
+    protected $availableIncludes = [
+        'permissions'
+    ];
+    /**
      * A Fractal transformer.
      *
      * @return array
@@ -17,8 +25,18 @@ class RoleTransformer extends TransformerAbstract
         return [
             'id'            => $role->id,
             'name'          => $role->name,
-            'guard_name'    => $role->guard_name,
-            'permissions'   => $role->permissions
+            'guard_name'    => $role->guard_name
         ];
+    }
+
+    /**
+     * Include Permission
+     *
+     * @return \League\Fractal\Resource\Item
+     */
+    public function includePermissions(Role $role)
+    {
+        $permissions = $role->getAllPermissions();
+        return $permissions ? $this->collection($permissions, new PermissionTransformer, 'permission') : $this->null();
     }
 }

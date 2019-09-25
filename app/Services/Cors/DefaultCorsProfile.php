@@ -8,6 +8,6 @@ class DefaultCorsProfile extends DefaultProfile
     public function allowOrigins(): array
     {
         // write the allowed domains
-        return []
+        return [];
     }
 }

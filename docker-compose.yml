@@ -8,6 +8,7 @@ services:
     environment:
       POSTGRES_PASSWORD: secret
       POSTGRES_USER: homestead
+      POSTGRES_DB: ateneo
     ports:
       - 5432:5432
     networks:
@@ -50,6 +51,19 @@ services:
       - ./nginx/conf.d/:/etc/nginx/conf.d/
     networks:
       - backend-net
+    depends_on:
+      - psql
+
+  node:
+    image: node:11
+    container_name: node_php_core
+    working_dir: /usr/src/service
+    volumes:
+      - .:/usr/src/service
+    networks:
+      - backend-net
+    ports:
+      - "3000:3000"
     depends_on:
       - psql
 

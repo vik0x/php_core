@@ -2,20 +2,8 @@
 
 namespace App\Http\Requests\v1;
 
-use Illuminate\Validation\Factory as ValidationFactory;
-
 class ProfilePictureRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
-    {
-        return true;
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *

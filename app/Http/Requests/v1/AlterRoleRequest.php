@@ -14,8 +14,7 @@ class AlterRoleRequest extends FormRequest
      */
     public function authorize()
     {
-        //The body parameter in the request for role creation/edition must not be equal than the model for implicit binding issues when trying to edit (PUT)
-        $role = $this->route()->parameter('role');
+        $role = $this->route()->parameter('role_name');
         $check = new CheckPassword($this->user()->password);
         if ($this->isMethod('post')) {
             return $check->passes('password', $this->user_password);

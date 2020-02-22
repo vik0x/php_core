@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
+
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Serializer\JsonApiSerializer;
 use Spatie\Permission\Models\Role;
@@ -16,9 +17,12 @@ use App\Http\Requests\v1\ResetPasswordRequest;
 use App\Http\Requests\v1\AlterUserRequest;
 use App\Http\Requests\v1\ProfilePictureRequest;
 use App\Http\Requests\v1\AssignPermissionsToUserRequest;
+
 use App\Mail\RecoverPassword;
+
 use App\Models\v1\Permission;
 use App\Models\v1\User;
+
 use App\Transformers\v1\UserTransformer;
 
 use Illuminate\Support\Facades\Storage;
@@ -52,7 +56,10 @@ class UserController extends Controller
         }
 
         return response()->json([
-            'message' => trans($message, $msgAttributes)
+            'success' => [
+                'status_code' => 200,
+                'message' => trans($message, $msgAttributes)
+            ]
         ]);
     }
 
@@ -65,6 +72,7 @@ class UserController extends Controller
         $password = bcrypt($password);
         $user = User::getUserByResetToken($token);
         if ($user !== null) {
+            $msgAttributes = ['username' => $user->first_name];
             $message = 'success';
             $httpCode = 200;
             $user->password = $password;
@@ -72,7 +80,10 @@ class UserController extends Controller
             $user->save();
         }
         return response()->json([
-            'message' => trans($message)
+            'success' => [
+                'status_code' => $httpCode,
+                'message' => trans($message, $msgAttributes? $msgAttributes : ['username' => 'user'])
+            ]
         ], $httpCode);
     }
 
@@ -83,6 +94,11 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        /* HINT: For getting the users roles and the permissions for those roles you shoud use
+        *
+        *    ->includeRoles()
+        *    ->parseIncludes(['roles.permissions'])
+        */
         $user = User::filter($request->all())->paginateFilter();
         $data = fractal()
             ->collection($user, new UserTransformer(), 'users')
@@ -127,13 +143,18 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(User $user)
+    public function show(Request $request, User $user)
     {
+        if (!$user->id) {
+            $user = $request->user();
+        }
         $data = fractal()
             ->item($user, new UserTransformer(), 'users')
-            ->serializeWith(new JsonApiSerializer())
-            ->toArray();
-        return response()->json($data, 200);
+            ->serializeWith(new JsonApiSerializer());
+        if ($request->withProfile) {
+            $data = $data->includeProfile();
+        }
+        return response()->json($data->toArray(), 200);
     }
 
     /**

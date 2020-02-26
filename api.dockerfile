@@ -1,7 +1,7 @@
 FROM php:7.4-fpm
 
 # Set working directory
-WORKDIR /var/www
+WORKDIR /var/www/back
 
 # Copy composer.lock and composer.json
 COPY --from=composer /usr/bin/composer /usr/bin/composer
@@ -30,7 +30,7 @@ RUN apt-get install -y libpq-dev \
 # RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Copy existing application directory contents
-COPY . /var/www
+COPY . /var/www/back
 RUN composer install
 ENV PATH="~/.composer/vendor/bin:./vendor/bin:${PATH}"
 

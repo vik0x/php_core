@@ -1,13 +1,15 @@
-FROM php:7.2-fpm
-
-# Copy composer.lock and composer.json
-COPY composer.lock composer.json /var/www/
+FROM php:7.4-fpm
 
 # Set working directory
 WORKDIR /var/www
 
+# Copy composer.lock and composer.json
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+COPY composer.lock composer.json ./
+
 # Install dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update -y && apt-get upgrade -y
+RUN apt-get install -y \
     build-essential \
     libpng-dev \
     libjpeg62-turbo-dev \
@@ -17,7 +19,7 @@ RUN apt-get update && apt-get install -y \
     jpegoptim optipng pngquant gifsicle \
     vim \
     unzip \
-    git \
+    # git \
     curl
 
 RUN apt-get install -y libpq-dev \
@@ -25,16 +27,21 @@ RUN apt-get install -y libpq-dev \
     && docker-php-ext-install pdo pdo_pgsql pgsql
     
 # Install composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Copy existing application directory contents
 COPY . /var/www
-
-RUN chown -R www-data:www-data /var/www
+RUN composer install
+ENV PATH="~/.composer/vendor/bin:./vendor/bin:${PATH}"
 
 # Change current user to www
+RUN chown -R www-data:www-data /var/www
+
 USER root
 
 # Expose port 9000 and start php-fpm server
+COPY ./install.sh /temp/install.sh
+RUN chmod +x /temp/install.sh
 EXPOSE 7000
 CMD ["php-fpm"]
+ENTRYPOINT [ "/temp/install.sh" ]
